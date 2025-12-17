@@ -1,16 +1,11 @@
-import { themes as prismThemes } from "prism-react-renderer";
-import type { Config } from "@docusaurus/types";
-import type * as Preset from "@docusaurus/preset-classic";
+const { themes: prismThemes } = require("prism-react-renderer");
 
-const config: Config = {
+/** @type {import('@docusaurus/types').Config} */
+const config = {
   title: "Mission Control",
   tagline: "Executive Performance Intelligence",
   favicon: "img/mbmc_favicon.png",
 
-  /* ===============================
-     🔑 GLOBAL USER INJECTION
-     (Docusaurus-safe)
-     =============================== */
   headTags: [
     {
       tagName: "script",
@@ -50,7 +45,7 @@ const config: Config = {
         theme: {
           customCss: "./src/css/custom.css",
         },
-      } satisfies Preset.Options,
+      },
     ],
   ],
 
@@ -63,20 +58,13 @@ const config: Config = {
       disableSwitch: true,
     },
 
-    /* ===============================
-       🚫 NAVBAR REMOVED COMPLETELY
-       =============================== */
     navbar: {
       items: [],
     },
 
-    /* ===============================
-       🚫 FOOTER DISABLED (VALID)
-       =============================== */
     footer: {
       style: "dark",
       links: [],
-      // Must not be empty per Docusaurus validation
       copyright: " ",
     },
 
@@ -84,7 +72,7 @@ const config: Config = {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
     },
-  } satisfies Preset.ThemeConfig,
+  },
 };
 
-export default config;
+module.exports = config;

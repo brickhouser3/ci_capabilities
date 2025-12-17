@@ -50,7 +50,7 @@ export default function USHeatmap({
           flexDirection: "column",
           gap: "3px",
           fontSize: "0.6rem",
-          color: "var(--mc-text-muted)",
+          color: "#000000",
           width: "60px",
           flexShrink: 0,
         }}

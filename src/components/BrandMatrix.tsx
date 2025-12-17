@@ -1,12 +1,13 @@
 import React from "react";
+import useBaseUrl from "@docusaurus/useBaseUrl";
 
-/**
- * Dummy brand definitions
- */
+/* =========================
+   Brand Config (NO HOOKS)
+   ========================= */
 const brands = [
   { key: "BDL", name: "Bud Light", logo: "/img/brand_logos/BDL.jpg" },
   { key: "MUL", name: "Michelob Ultra", logo: "/img/brand_logos/MUL.jpg" },
-  { key: "BUD", name: "Budweiser", logo: "/img/brand_logos/BHL.jpg" },
+  { key: "BUD", name: "Budweiser", logo: "/img/brand_logos/BUD.jpg" },
   { key: "CWFM", name: "Cutwater", logo: "/img/brand_logos/CWFM.jpg" },
   { key: "KGA", name: "Big Wave", logo: "/img/brand_logos/KGA.png" },
   { key: "NUTRL", name: "NUTRL", logo: "/img/brand_logos/NUTRL.png" },
@@ -24,9 +25,9 @@ const kpis = [
   { key: "adshare", label: "Ad Share" },
 ];
 
-/**
- * KPI → Brand dummy data
- */
+/* =========================
+   Dummy KPI Data
+   ========================= */
 const data: Record<
   string,
   Record<string, { value: string; delta: number }>
@@ -111,36 +112,35 @@ function deltaColor(delta: number) {
   return "#6b7280";
 }
 
+/* =========================
+   BrandMatrix Component
+   ========================= */
 export default function BrandMatrix({
   onDrill,
 }: {
   onDrill?: (kpi: string) => void;
 }) {
+  const baseUrl = useBaseUrl("/");
+
+  const brandsWithLogos = brands.map(b => ({
+    ...b,
+    logo: `${baseUrl}${b.logo.replace(/^\//, "")}`,
+  }));
+
   return (
     <div style={{ background: "var(--mc-bg-surface)", padding: "0.5rem" }}>
-      {/* Title */}
-      <div
-        style={{
-          fontWeight: 600,
-          marginBottom: "1rem",
-          color: "#000000",
-        }}
-      >
-        Brand Performance Matrix
-      </div>
-
       {/* Header Row */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: `160px repeat(${brands.length}, minmax(0, 1fr))`,
+          gridTemplateColumns: `160px repeat(${brandsWithLogos.length}, minmax(0, 1fr))`,
           gap: "0.75rem",
           marginBottom: "0.75rem",
         }}
       >
         <div />
 
-        {brands.map((b) => (
+        {brandsWithLogos.map(b => (
           <div
             key={b.key}
             style={{ display: "flex", justifyContent: "center" }}
@@ -156,24 +156,24 @@ export default function BrandMatrix({
 
       {/* KPI Rows */}
       <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-        {kpis.map((kpi) => (
+        {kpis.map(kpi => (
           <div
             key={kpi.key}
             onClick={() => onDrill?.(kpi.key)}
             style={{
               display: "grid",
-              gridTemplateColumns: `160px repeat(${brands.length}, minmax(0, 1fr))`,
+              gridTemplateColumns: `160px repeat(${brandsWithLogos.length}, minmax(0, 1fr))`,
               gap: "0.75rem",
               padding: "0.5rem 0.25rem",
               borderRadius: "8px",
               cursor: "pointer",
               transition: "background 0.15s ease",
             }}
-            onMouseEnter={(e) =>
+            onMouseEnter={e =>
               (e.currentTarget.style.background =
                 "rgba(11,30,58,0.04)")
             }
-            onMouseLeave={(e) =>
+            onMouseLeave={e =>
               (e.currentTarget.style.background = "transparent")
             }
           >
@@ -182,7 +182,7 @@ export default function BrandMatrix({
               {kpi.label}
             </div>
 
-            {brands.map((b) => {
+            {brandsWithLogos.map(b => {
               const cell = data[kpi.key]?.[b.key];
               if (!cell) return <div key={b.key} />;
 

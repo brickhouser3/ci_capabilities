@@ -11,62 +11,72 @@ import {
 } from "lucide-react";
 
 const ICONS: Record<string, React.ReactNode> = {
-  volume: <BarChart3 size={16} />,
-  revenue: <DollarSign size={16} />,
-  share: <Share2 size={16} />,
-  pods: <MapPin size={16} />,
-  taps: <Activity size={16} />,
-  displays: <Megaphone size={16} />,
-  avd: <Activity size={16} />,
-  adshare: <Share2 size={16} />,
-};
-
-const COLORS: Record<string, string> = {
-  volume: "#eef2ff",
-  revenue: "#ecfeff",
-  share: "#f0fdf4",
-  pods: "#fff7ed",
-  taps: "#fef2f2",
-  displays: "#faf5ff",
-  avd: "#f8fafc",
-  adshare: "#fdf4ff",
+  volume: <BarChart3 size={18} />,
+  revenue: <DollarSign size={18} />,
+  share: <Share2 size={18} />,
+  pods: <MapPin size={18} />,
+  taps: <Activity size={18} />,
+  displays: <Megaphone size={18} />,
+  avd: <Activity size={18} />,
+  adshare: <Share2 size={18} />,
 };
 
 export default function KPI({
   label,
+  labelColor,
   value,
-  delta,
   vsYTD,
   vsLastMonth,
   icon,
+  iconBg,
   active,
   onIconClick,
 }: {
   label: string;
+  labelColor?: string;
   value: string;
-  delta: number;
   vsYTD: number;
   vsLastMonth: number;
   icon: string;
+  iconBg?: string;
   active?: boolean;
   onIconClick?: () => void;
 }) {
   return (
     <div
+      onClick={onIconClick}
       style={{
         background: "#ffffff",
         borderRadius: "16px",
-        boxShadow: "0 8px 20px rgba(11,30,58,0.08)",
         padding: "1rem",
         display: "flex",
         flexDirection: "column",
-        gap: "0.5rem",
+        gap: "0.55rem",
         cursor: "pointer",
-        outline: active ? "2px solid #0b1e3a" : "none",
+
+        boxShadow: active
+          ? `0 0 0 2px ${iconBg ?? "#CBD5E1"}, 0 10px 24px rgba(10,22,51,0.12)`
+          : "0 8px 20px rgba(10,22,51,0.08)",
+
+        transform: active ? "translateY(-1px)" : "translateY(0)",
+        transition: "transform 140ms ease, box-shadow 140ms ease",
       }}
-      onClick={onIconClick}
+      onMouseEnter={e => {
+        if (!active) {
+          e.currentTarget.style.transform = "translateY(-2px)";
+          e.currentTarget.style.boxShadow =
+            "0 12px 26px rgba(10,22,51,0.14)";
+        }
+      }}
+      onMouseLeave={e => {
+        if (!active) {
+          e.currentTarget.style.transform = "translateY(0)";
+          e.currentTarget.style.boxShadow =
+            "0 8px 20px rgba(10,22,51,0.08)";
+        }
+      }}
     >
-      {/* Header */}
+      {/* HEADER */}
       <div
         style={{
           display: "flex",
@@ -76,10 +86,11 @@ export default function KPI({
       >
         <div
           style={{
-            fontSize: "0.75rem",
-            fontWeight: 700,
-            letterSpacing: "0.06em",
-            color: "var(--mc-text-muted)",
+            fontSize: "0.85rem",
+            fontWeight: 800,
+            letterSpacing: "0.08em",
+            color: labelColor ?? "#0A1633",
+            textTransform: "uppercase",
           }}
         >
           {label}
@@ -87,31 +98,35 @@ export default function KPI({
 
         <div
           style={{
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             borderRadius: "50%",
-            background: COLORS[icon],
+            background: iconBg ?? "#E5E7EB",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            color: "#0A1633",
+            transform: active ? "scale(1.05)" : "scale(1)",
+            transition: "transform 200ms ease",
           }}
         >
           {ICONS[icon]}
         </div>
       </div>
 
-      {/* Value */}
+      {/* VALUE */}
       <div
         style={{
           fontSize: "1.6rem",
           fontWeight: 700,
-          color: "#000000",
+          color: "#0A1633",
+          lineHeight: 1.1,
         }}
       >
         {value}
       </div>
 
-      {/* Comparisons */}
+      {/* COMPARISONS (YTD + MoM only) */}
       <div
         style={{
           display: "flex",
@@ -119,7 +134,6 @@ export default function KPI({
           fontSize: "0.75rem",
         }}
       >
-        <Comparison label="WoW" value={delta} />
         <Comparison label="YTD" value={vsYTD} />
         <Comparison label="MoM" value={vsLastMonth} />
       </div>

@@ -10,18 +10,22 @@ import TrendChart from "../components/TrendChart";
 import { volumeTrend } from "../lib/mockTrendData";
 
 /**
- * Metric → background color for trend drawer
+ * Metric → icon + trend drawer color
+ * (More visible, still soft)
  */
 const METRIC_COLORS: Record<string, string> = {
-  volume: "#eef2ff",
-  revenue: "#ecfeff",
-  share: "#f0fdf4",
-  pods: "#fff7ed",
-  taps: "#fef2f2",
-  displays: "#faf5ff",
-  avd: "#f8fafc",
-  adshare: "#fdf4ff",
+  volume: "#DCE7FF",
+  revenue: "#D6F4F1",
+  share: "#DDF5E6",
+  pods: "#FFE8CC",
+  taps: "#FFE1E1",
+  displays: "#EFE3FF",
+  avd: "#E9EEF5",
+  adshare: "#F6E1FA",
 };
+
+/** KPI label color — deep navy */
+const KPI_LABEL_COLOR = "#0A1633";
 
 export default function Exec() {
   const [selectedState, setSelectedState] = React.useState<string | null>(null);
@@ -29,25 +33,27 @@ export default function Exec() {
 
   return (
     <AppLayout>
-      {/* PAGE SCROLL CONTAINER */}
+      {/* ================= SCROLL CONTAINER ================= */}
       <div
         style={{
-          height: "100%",
-          overflowX: "hidden",          // ✅ kill global horizontal scroll
-          overflowY: activeMetric ? "auto" : "hidden",
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflowX: "auto",
+          overflowY: "auto",
           paddingTop: "2.25rem",
-          paddingBottom: "2rem",
+          backgroundColor: "#ffffff",
         }}
       >
-        {/* HORIZONTAL PADDING LAYER */}
+        {/* ================= PAGE WIDTH WRAPPER ================= */}
         <div
           style={{
-            padding: "0 2.5rem",        // ✅ padding lives OUTSIDE maxWidth
+            padding: "0 2.5rem",
             display: "flex",
             justifyContent: "center",
           }}
         >
-          {/* PAGE CONTENT (WIDTH-CONSTRAINED) */}
+          {/* ================= CONTENT STACK ================= */}
           <div
             style={{
               width: "100%",
@@ -65,16 +71,18 @@ export default function Exec() {
                 gap: "1.25rem",
                 paddingBottom: activeMetric ? "0.75rem" : 0,
                 borderBottom: activeMetric
-                  ? "1px solid rgba(11,30,58,0.08)"
+                  ? "1px solid rgba(10,22,51,0.12)"
                   : "none",
               }}
             >
               <KPI
                 label="VOLUME"
+                labelColor={KPI_LABEL_COLOR}
                 value="195.9"
                 delta={-6.1}
                 vsYTD={2.4}
                 icon="volume"
+                iconBg={METRIC_COLORS.volume}
                 active={activeMetric === "volume"}
                 onIconClick={() =>
                   setActiveMetric(p => (p === "volume" ? null : "volume"))
@@ -83,10 +91,12 @@ export default function Exec() {
 
               <KPI
                 label="NET REVENUE"
+                labelColor={KPI_LABEL_COLOR}
                 value="$1.2B"
                 delta={2.1}
                 vsYTD={4.8}
                 icon="revenue"
+                iconBg={METRIC_COLORS.revenue}
                 active={activeMetric === "revenue"}
                 onIconClick={() =>
                   setActiveMetric(p => (p === "revenue" ? null : "revenue"))
@@ -95,10 +105,12 @@ export default function Exec() {
 
               <KPI
                 label="BIR SHARE"
+                labelColor={KPI_LABEL_COLOR}
                 value="23.4%"
                 delta={0.4}
                 vsYTD={1.2}
                 icon="share"
+                iconBg={METRIC_COLORS.share}
                 active={activeMetric === "share"}
                 onIconClick={() =>
                   setActiveMetric(p => (p === "share" ? null : "share"))
@@ -107,10 +119,12 @@ export default function Exec() {
 
               <KPI
                 label="PODS"
+                labelColor={KPI_LABEL_COLOR}
                 value="415K"
                 delta={1.1}
                 vsYTD={3.5}
                 icon="pods"
+                iconBg={METRIC_COLORS.pods}
                 active={activeMetric === "pods"}
                 onIconClick={() =>
                   setActiveMetric(p => (p === "pods" ? null : "pods"))
@@ -119,10 +133,12 @@ export default function Exec() {
 
               <KPI
                 label="TAPS"
+                labelColor={KPI_LABEL_COLOR}
                 value="92.7K"
                 delta={-0.6}
                 vsYTD={1.9}
                 icon="taps"
+                iconBg={METRIC_COLORS.taps}
                 active={activeMetric === "taps"}
                 onIconClick={() =>
                   setActiveMetric(p => (p === "taps" ? null : "taps"))
@@ -131,10 +147,12 @@ export default function Exec() {
 
               <KPI
                 label="DISPLAYS"
+                labelColor={KPI_LABEL_COLOR}
                 value="128K"
                 delta={3.2}
                 vsYTD={5.1}
                 icon="displays"
+                iconBg={METRIC_COLORS.displays}
                 active={activeMetric === "displays"}
                 onIconClick={() =>
                   setActiveMetric(p =>
@@ -145,10 +163,12 @@ export default function Exec() {
 
               <KPI
                 label="AVD"
+                labelColor={KPI_LABEL_COLOR}
                 value="7.8"
                 delta={0.3}
                 vsYTD={0.9}
                 icon="avd"
+                iconBg={METRIC_COLORS.avd}
                 active={activeMetric === "avd"}
                 onIconClick={() =>
                   setActiveMetric(p => (p === "avd" ? null : "avd"))
@@ -157,10 +177,12 @@ export default function Exec() {
 
               <KPI
                 label="AD SHARE"
+                labelColor={KPI_LABEL_COLOR}
                 value="18.6%"
                 delta={-0.4}
                 vsYTD={-0.8}
                 icon="adshare"
+                iconBg={METRIC_COLORS.adshare}
                 active={activeMetric === "adshare"}
                 onIconClick={() =>
                   setActiveMetric(p =>
@@ -174,7 +196,7 @@ export default function Exec() {
             {activeMetric && (
               <div
                 style={{
-                  background: METRIC_COLORS[activeMetric] ?? "#f8fafc",
+                  backgroundColor: METRIC_COLORS[activeMetric],
                   borderRadius: "0 0 18px 18px",
                   padding: "1.75rem 2rem 2.25rem",
                   marginTop: "-0.5rem",
@@ -187,7 +209,7 @@ export default function Exec() {
                     marginBottom: "0.75rem",
                     letterSpacing: "0.04em",
                     textTransform: "uppercase",
-                    color: "var(--mc-text-primary)",
+                    color: KPI_LABEL_COLOR,
                   }}
                 >
                   {activeMetric} — Trend
@@ -199,26 +221,24 @@ export default function Exec() {
               </div>
             )}
 
-            {/* ================= GEO + BRAND ZONE ================= */}
+            {/* ================= GEO + BRAND ================= */}
             <div
               style={{
                 height: "520px",
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
                 gap: "1.5rem",
-                alignItems: "stretch",
               }}
             >
               <div
                 style={{
-                  background: "#ffffff",
+                  backgroundColor: "#ffffff",
                   borderRadius: "16px",
-                  boxShadow: "0 10px 24px rgba(11,30,58,0.08)",
+                  boxShadow: "0 10px 24px rgba(10,22,51,0.08)",
                   padding: "1.25rem",
                   display: "flex",
                   flexDirection: "column",
                   gap: "1.25rem",
-	   	  height: "100%",
                 }}
               >
                 <USHeatmap
@@ -237,13 +257,12 @@ export default function Exec() {
 
               <div
                 style={{
-                  background: "#ffffff",
+                  backgroundColor: "#ffffff",
                   borderRadius: "16px",
-                  boxShadow: "0 10px 24px rgba(11,30,58,0.08)",
+                  boxShadow: "0 10px 24px rgba(10,22,51,0.08)",
                   padding: "1.25rem",
                   display: "flex",
                   flexDirection: "column",
-	   	  height: "100%",
                 }}
               >
                 <BrandMatrix />
