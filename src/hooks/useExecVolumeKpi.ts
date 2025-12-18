@@ -4,7 +4,7 @@ import { KpiResponseV1 } from "../contracts/kpi";
 
 /**
  * Fetches the Exec Volume KPI from the Vercel API
- * Uses Docusaurus customFields.apiBaseUrl
+ * Uses SIMPLE POST (text/plain) to avoid CORS preflight
  */
 export function useExecVolumeKpi() {
   const { siteConfig } = useDocusaurusContext();
@@ -33,7 +33,10 @@ export function useExecVolumeKpi() {
 
         const res = await fetch(`${apiBaseUrl}/api/query`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            // ✅ SIMPLE REQUEST — NO PREFLIGHT
+            "Content-Type": "text/plain",
+          },
           body: JSON.stringify({
             contract_version: "kpi_request.v1",
             kpi: "volume",
