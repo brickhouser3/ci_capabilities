@@ -1,5 +1,9 @@
 const { themes: prismThemes } = require("prism-react-renderer");
 
+customFields: {
+  apiBaseUrl: "https://ci-capabilities.vercel.app",
+},
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "Mission Control",

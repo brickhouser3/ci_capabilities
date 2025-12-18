@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { KpiResponseV1 } from "../contracts/kpi";
 
+/**
+ * Fetches the Exec Volume KPI from the Vercel API
+ * Uses Docusaurus customFields.apiBaseUrl
+ */
 export function useExecVolumeKpi() {
   const [data, setData] = useState<KpiResponseV1 | null>(null);
   const [loading, setLoading] = useState(true);
@@ -13,7 +17,16 @@ export function useExecVolumeKpi() {
       try {
         setLoading(true);
 
-        const res = await fetch("/api/query", {
+        // ✅ Resolve API base URL from Docusaurus config
+        const apiBaseUrl =
+          (window as any)?.__docusaurus?.siteConfig?.customFields
+            ?.apiBaseUrl ?? "";
+
+        if (!apiBaseUrl) {
+          throw new Error("API base URL is not configured");
+        }
+
+        const res = await fetch(`${apiBaseUrl}/api/query`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -23,7 +36,7 @@ export function useExecVolumeKpi() {
         });
 
         if (!res.ok) {
-          throw new Error("Failed to fetch volume KPI");
+          throw new Error(`Failed to fetch volume KPI (${res.status})`);
         }
 
         const json: KpiResponseV1 = await res.json();
@@ -43,6 +56,7 @@ export function useExecVolumeKpi() {
     }
 
     fetchKpi();
+
     return () => {
       cancelled = true;
     };
