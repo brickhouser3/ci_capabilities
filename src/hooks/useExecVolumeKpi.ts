@@ -11,6 +11,8 @@ export function useExecVolumeKpi() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("🔥 useExecVolumeKpi mounted");
+
     let cancelled = false;
 
     async function fetchKpi() {
@@ -22,9 +24,13 @@ export function useExecVolumeKpi() {
           (window as any)?.__docusaurus?.siteConfig?.customFields
             ?.apiBaseUrl ?? "";
 
+        console.log("🌐 apiBaseUrl:", apiBaseUrl);
+
         if (!apiBaseUrl) {
           throw new Error("API base URL is not configured");
         }
+
+        console.log("🚀 Fetching volume KPI...");
 
         const res = await fetch(`${apiBaseUrl}/api/query`, {
           method: "POST",
@@ -47,6 +53,7 @@ export function useExecVolumeKpi() {
       } catch (err: any) {
         if (!cancelled) {
           setError(err.message ?? "Unknown error");
+          console.error("❌ Volume KPI error:", err);
         }
       } finally {
         if (!cancelled) {
