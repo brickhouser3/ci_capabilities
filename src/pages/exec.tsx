@@ -12,7 +12,7 @@ import { volumeTrend } from "../lib/mockTrendData";
 import { TrendingDown, TrendingUp, Sparkles } from "lucide-react";
 
 import { useExecVolumeKpi } from "../hooks/useExecVolumeKpi";
-import { formatBBLs, formatPctDecimal } from "../lib/format";
+import { formatBBLs } from "../lib/format";
 
 /* ======================================================
    CONFIG
@@ -57,7 +57,12 @@ const EXEC_UPDATES = [
 export default function Exec() {
   const history = useHistory();
   const [activeMetric, setActiveMetric] = React.useState<string | null>(null);
-  const { data: volumeKpi, loading: volumeLoading } = useExecVolumeKpi();
+
+  const {
+    data: volumeKpi,
+    loading: volumeLoading,
+    error: volumeError,
+  } = useExecVolumeKpi();
 
   return (
     <AppLayout>
@@ -114,7 +119,6 @@ export default function Exec() {
         .tone-amber .exec-update-rail{ background: rgba(245,158,11,0.70); }
         .tone-gold .exec-update-rail{ background: rgba(242,214,117,0.80); }
 
-        /* ===== SUBTLE SCROLLBAR ===== */
         .subtle-scroll {
           scrollbar-width: thin;
           scrollbar-color: rgba(120,130,150,0.4) transparent;
@@ -192,60 +196,56 @@ export default function Exec() {
                 gap: "1.25rem",
               }}
             >
-<KPI
-  label="VOLUME"
-  icon="volume"
-  iconBg={METRIC_COLORS.volume}
-  active={activeMetric === "volume"}
-  onIconClick={() => setActiveMetric(p => (p === "volume" ? null : "volume"))}
-  value={
-    volumeLoading || !volumeKpi
-      ? "—"
-      : formatBBLs(volumeKpi.data.value)
-  }
-  vsYTD={
-    volumeLoading || !volumeKpi
-      ? 0
-      : formatPctDecimal(volumeKpi.data.vs_ytd_pct)
-  }
-  vsLastMonth={
-    volumeLoading || !volumeKpi
-      ? 0
-      : formatPctDecimal(volumeKpi.data.vs_mom_pct)
-  }
-/>
+              {/* ===== FIXED VOLUME KPI ===== */}
+              <KPI
+                label="VOLUME"
+                icon="volume"
+                iconBg={METRIC_COLORS.volume}
+                active={activeMetric === "volume"}
+                onIconClick={() =>
+                  setActiveMetric(p => (p === "volume" ? null : "volume"))
+                }
+                value={
+                  volumeLoading || !volumeKpi || volumeKpi.value == null
+                    ? "—"
+                    : formatBBLs(volumeKpi.value)
+                }
+                vsYTD={0}
+                vsLastMonth={0}
+              />
 
-              <KPI label="NET REVENUE" value="$1.2B" vsYTD={4.8} vsLastMonth={1.2} vsTarget={0.9}
+              {/* ===== STATIC KPIs (unchanged) ===== */}
+              <KPI label="NET REVENUE" value="$1.2B" vsYTD={4.8} vsLastMonth={1.2}
                 icon="revenue" iconBg={METRIC_COLORS.revenue}
                 active={activeMetric === "revenue"}
                 onIconClick={() => setActiveMetric(p => (p === "revenue" ? null : "revenue"))}
               />
-              <KPI label="BIR SHARE" value="23.4%" vsYTD={1.2} vsLastMonth={0.4} vsTarget={0.6}
+              <KPI label="BIR SHARE" value="23.4%" vsYTD={1.2} vsLastMonth={0.4}
                 icon="share" iconBg={METRIC_COLORS.share}
                 active={activeMetric === "share"}
                 onIconClick={() => setActiveMetric(p => (p === "share" ? null : "share"))}
               />
-              <KPI label="PODS" value="415K" vsYTD={3.5} vsLastMonth={1.1} vsTarget={2.4}
+              <KPI label="PODS" value="415K" vsYTD={3.5} vsLastMonth={1.1}
                 icon="pods" iconBg={METRIC_COLORS.pods}
                 active={activeMetric === "pods"}
                 onIconClick={() => setActiveMetric(p => (p === "pods" ? null : "pods"))}
               />
-              <KPI label="TAPS" value="92.7K" vsYTD={1.9} vsLastMonth={-0.6} vsTarget={-1.1}
+              <KPI label="TAPS" value="92.7K" vsYTD={1.9} vsLastMonth={-0.6}
                 icon="taps" iconBg={METRIC_COLORS.taps}
                 active={activeMetric === "taps"}
                 onIconClick={() => setActiveMetric(p => (p === "taps" ? null : "taps"))}
               />
-              <KPI label="DISPLAYS" value="128K" vsYTD={5.1} vsLastMonth={2.3} vsTarget={3.8}
+              <KPI label="DISPLAYS" value="128K" vsYTD={5.1} vsLastMonth={2.3}
                 icon="displays" iconBg={METRIC_COLORS.displays}
                 active={activeMetric === "displays"}
                 onIconClick={() => setActiveMetric(p => (p === "displays" ? null : "displays"))}
               />
-              <KPI label="AVD" value="7.8" vsYTD={0.9} vsLastMonth={0.3} vsTarget={0.4}
+              <KPI label="AVD" value="7.8" vsYTD={0.9} vsLastMonth={0.3}
                 icon="avd" iconBg={METRIC_COLORS.avd}
                 active={activeMetric === "avd"}
                 onIconClick={() => setActiveMetric(p => (p === "avd" ? null : "avd"))}
               />
-              <KPI label="AD SHARE" value="18.6%" vsYTD={-0.8} vsLastMonth={-0.4} vsTarget={-1.2}
+              <KPI label="AD SHARE" value="18.6%" vsYTD={-0.8} vsLastMonth={-0.4}
                 icon="adshare" iconBg={METRIC_COLORS.adshare}
                 active={activeMetric === "adshare"}
                 onIconClick={() => setActiveMetric(p => (p === "adshare" ? null : "adshare"))}
@@ -277,7 +277,6 @@ export default function Exec() {
                 minHeight: 0,
               }}
             >
-              {/* LEFT CARD */}
               <div
                 style={{
                   backgroundColor: "#ffffff",
@@ -290,12 +289,11 @@ export default function Exec() {
                 }}
               >
                 <USHeatmap height={240} legendSize="compact" />
-                <div className="subtle-scroll" style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
+                <div className="subtle-scroll" style={{ flex: 1, overflowY: "auto" }}>
                   <RegionMatrix selectedMetric={activeMetric} />
                 </div>
               </div>
 
-              {/* RIGHT CARD */}
               <div
                 style={{
                   backgroundColor: "#ffffff",
@@ -307,7 +305,7 @@ export default function Exec() {
                   minHeight: 0,
                 }}
               >
-                <div className="subtle-scroll" style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
+                <div className="subtle-scroll" style={{ flex: 1, overflowY: "auto" }}>
                   <BrandMatrix selectedMetric={activeMetric} />
                 </div>
               </div>

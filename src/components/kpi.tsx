@@ -25,6 +25,8 @@ const ICONS: Record<string, React.ReactNode> = {
   adshare: <Share2 size={18} />,
 };
 
+const FALLBACK_ICON = <BarChart3 size={18} />;
+
 /* =========================
    KPI CARD
 ========================= */
@@ -32,25 +34,27 @@ export default function KPI({
   label,
   labelColor,
   value,
-  vsYTD,
-  vsLastMonth,
-  vsTarget,          // ✅ NEW
+  vsYTD = 0,
+  vsLastMonth = 0,
+  vsTarget,
   icon,
   iconBg,
-  active,
+  active = false,
   onIconClick,
 }: {
   label: string;
   labelColor?: string;
   value: string;
-  vsYTD: number;
-  vsLastMonth: number;
-  vsTarget?: number; // percent vs target
+  vsYTD?: number;
+  vsLastMonth?: number;
+  vsTarget?: number;
   icon: string;
   iconBg?: string;
   active?: boolean;
   onIconClick?: () => void;
 }) {
+  const resolvedIcon = ICONS[icon] ?? FALLBACK_ICON;
+
   return (
     <div
       onClick={onIconClick}
@@ -61,7 +65,7 @@ export default function KPI({
         display: "flex",
         flexDirection: "column",
         gap: "0.6rem",
-        cursor: "pointer",
+        cursor: onIconClick ? "pointer" : "default",
 
         boxShadow: active
           ? `0 0 0 2px ${iconBg ?? "#CBD5E1"}, 0 12px 26px rgba(10,22,51,0.14)`
@@ -70,29 +74,9 @@ export default function KPI({
         transform: active ? "translateY(-1px)" : "translateY(0)",
         transition: "transform 140ms ease, box-shadow 140ms ease",
       }}
-      onMouseEnter={e => {
-        if (!active) {
-          e.currentTarget.style.transform = "translateY(-2px)";
-          e.currentTarget.style.boxShadow =
-            "0 12px 26px rgba(10,22,51,0.14)";
-        }
-      }}
-      onMouseLeave={e => {
-        if (!active) {
-          e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow =
-            "0 8px 20px rgba(10,22,51,0.08)";
-        }
-      }}
     >
       {/* HEADER */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
         <div
           style={{
             fontSize: "0.85rem",
@@ -115,11 +99,9 @@ export default function KPI({
             alignItems: "center",
             justifyContent: "center",
             color: "#0A1633",
-            transform: active ? "scale(1.05)" : "scale(1)",
-            transition: "transform 200ms ease",
           }}
         >
-          {ICONS[icon]}
+          {resolvedIcon}
         </div>
       </div>
 
@@ -135,7 +117,7 @@ export default function KPI({
         {value}
       </div>
 
-      {/* AGAINST TARGET (NEW) */}
+      {/* VS TARGET */}
       {typeof vsTarget === "number" && (
         <div
           style={{
@@ -145,7 +127,6 @@ export default function KPI({
             fontSize: "0.7rem",
             fontWeight: 600,
             color: vsTarget >= 0 ? "#166534" : "#b91c1c",
-            opacity: 0.9,
           }}
         >
           <Target size={13} />
@@ -160,7 +141,6 @@ export default function KPI({
           display: "flex",
           justifyContent: "space-between",
           fontSize: "0.75rem",
-          marginTop: "0.15rem",
         }}
       >
         <Comparison label="YTD" value={vsYTD} />
@@ -174,7 +154,7 @@ export default function KPI({
    COMPARISON CHIP
 ========================= */
 function Comparison({ label, value }: { label: string; value: number }) {
-  const positive = value > 0;
+  const positive = value >= 0;
 
   return (
     <div

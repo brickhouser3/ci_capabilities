@@ -4,20 +4,20 @@ import { KpiResponseV1 } from "../contracts/kpi";
 
 /**
  * Fetches the Exec Volume KPI from the Vercel API
+ * Normalizes Databricks SQL response → KpiResponseV1
  * Uses SIMPLE POST (text/plain) to avoid CORS preflight
  */
 export function useExecVolumeKpi() {
   const { siteConfig } = useDocusaurusContext();
-  const apiBaseUrl = (siteConfig.customFields as any)?.apiBaseUrl;
+  const apiBaseUrl = (siteConfig.customFields as any)?.apiBaseUrl as
+    | string
+    | undefined;
 
   const [data, setData] = useState<KpiResponseV1 | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("🔥 useExecVolumeKpi mounted");
-    console.log("🌐 apiBaseUrl:", apiBaseUrl);
-
     if (!apiBaseUrl) {
       setError("API base URL is not configured");
       setLoading(false);
@@ -29,12 +29,12 @@ export function useExecVolumeKpi() {
     async function fetchKpi() {
       try {
         setLoading(true);
-        console.log("🚀 Fetching volume KPI...");
+        setError(null);
 
         const res = await fetch(`${apiBaseUrl}/api/query`, {
           method: "POST",
           headers: {
-            // ✅ SIMPLE REQUEST — NO PREFLIGHT
+            // SIMPLE REQUEST → no CORS preflight
             "Content-Type": "text/plain",
           },
           body: JSON.stringify({
@@ -44,18 +44,28 @@ export function useExecVolumeKpi() {
         });
 
         if (!res.ok) {
-          throw new Error(`Failed to fetch volume KPI (${res.status})`);
+          throw new Error(`Volume KPI request failed (${res.status})`);
         }
 
-        const json: KpiResponseV1 = await res.json();
+        const raw = await res.json();
+
+        /**
+         * Normalize Databricks SQL API response
+         * Expected shape:
+         * result.data_array[0][0] = KPI value
+         */
+        const normalized: KpiResponseV1 = {
+          value: raw?.result?.data_array?.[0]?.[0] ?? null,
+        };
 
         if (!cancelled) {
-          setData(json);
+          setData(normalized);
         }
       } catch (err: any) {
         if (!cancelled) {
-          setError(err.message ?? "Unknown error");
-          console.error("❌ Volume KPI error:", err);
+          console.error("❌ useExecVolumeKpi error:", err);
+          setError(err?.message ?? "Unknown error");
+          setData(null);
         }
       } finally {
         if (!cancelled) {
