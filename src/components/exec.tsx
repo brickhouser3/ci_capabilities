@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import AppLayout from "../components/AppLayout";
+import { UploadModal } from "../components/modals/UploadModal";
+import { Upload } from "lucide-react";
 
 import USHeatmap from "../components/USHeatmap";
 import RegionMatrix from "../components/RegionMatrix";
@@ -20,93 +22,110 @@ const METRIC_COLORS: Record<string, string> = {
 };
 
 export default function Exec() {
-  const [selectedState, setSelectedState] = React.useState<string | null>(null);
-  const [activeMetric, setActiveMetric] = React.useState<string | null>(null);
+  const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [activeMetric, setActiveMetric] = useState<string | null>(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   return (
     <AppLayout>
-      <div
-        style={{
-          flex: 1,
-          overflowY: activeMetric ? "auto" : "hidden",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1600px",
-            margin: "0 auto",
-            padding: "1.5rem 2.5rem 3.5rem",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1.5rem",
-          }}
-        >
-          {/* KPI ROW */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(8, 1fr)",
-              gap: "1.25rem",
-            }}
-          >
-            {[
-              ["Volume", "volume"],
-              ["Net Revenue", "revenue"],
-              ["BIR Share", "share"],
-              ["PODs", "pods"],
-              ["TAPs", "taps"],
-              ["Displays", "displays"],
-              ["AVD", "avd"],
-              ["Ad Share", "adshare"],
-            ].map(([label, key]) => (
-              <KPI
-                key={key}
-                label={label}
-                icon={key}
-                active={activeMetric === key}
-                onIconClick={() =>
-                  setActiveMetric((p) => (p === key ? null : key))
-                }
-              />
-            ))}
+      {/* ✅ FULL WIDTH CANVAS (no mx-auto max-w clamp) */}
+      <div className="w-full min-w-0 flex flex-col gap-6">
+        {/* === HEADER SECTION === */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 min-w-0">
+          <div className="min-w-0">
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+              Executive Overview
+            </h1>
+            <p className="text-slate-500 mt-1">
+              Real-time performance metrics across all regions
+            </p>
           </div>
 
-          {/* TREND */}
-          {activeMetric && (
-            <div
-              style={{
-                background: METRIC_COLORS[activeMetric],
-                padding: "2rem",
-                borderRadius: "18px",
-              }}
-            >
-              <TrendChart title="Latest Weeks" data={volumeTrend} />
-            </div>
-          )}
+          <button
+            onClick={() => setIsUploadModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 shadow-sm text-slate-700 font-medium rounded-lg hover:bg-slate-50 hover:text-blue-900 transition-all active:scale-95"
+          >
+            <Upload size={18} />
+            <span>Upload Data</span>
+          </button>
+        </div>
 
-          {/* MAIN GRID */}
+        {/* === KPI ROW === */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+            gap: "1.25rem",
+            minWidth: 0,
+          }}
+        >
+          {[
+            ["Volume", "volume"],
+            ["Net Revenue", "revenue"],
+            ["BIR Share", "share"],
+            ["PODs", "pods"],
+            ["TAPs", "taps"],
+            ["Displays", "displays"],
+            ["AVD", "avd"],
+            ["Ad Share", "adshare"],
+          ].map(([label, key]) => (
+            <KPI
+              key={key}
+              label={label}
+              icon={key}
+              active={activeMetric === key}
+              onIconClick={() =>
+                setActiveMetric((p) => (p === key ? null : key))
+              }
+            />
+          ))}
+        </div>
+
+        {/* === TREND DRAWER === */}
+        {activeMetric && (
           <div
+            className="animate-in slide-in-from-top-4 duration-300 min-w-0"
             style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "1.5rem",
+              background: METRIC_COLORS[activeMetric],
+              padding: "2rem",
+              borderRadius: "18px",
+              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.02)",
             }}
           >
-            <div className="card">
-              <USHeatmap
-                height={260}
-                legendSize="compact"
-                onSelectState={setSelectedState}
-              />
-              <RegionMatrix selectedState={selectedState} />
-            </div>
+            <TrendChart title="Latest Weeks" data={volumeTrend} />
+          </div>
+        )}
 
-            <div className="card">
-              <BrandMatrix />
-            </div>
+        {/* === MAIN GRID === */}
+        <div
+          style={{
+            display: "grid",
+            // ✅ was minmax(500px, 1fr) which can overflow
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "1.5rem",
+            minWidth: 0,
+          }}
+        >
+          <div className="card bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden min-w-0">
+            <USHeatmap
+              height={260}
+              legendSize="compact"
+              onSelectState={setSelectedState}
+            />
+            <RegionMatrix selectedState={selectedState} />
+          </div>
+
+          <div className="card bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden min-w-0">
+            <BrandMatrix />
           </div>
         </div>
       </div>
+
+      {/* === MODAL === */}
+      <UploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+      />
     </AppLayout>
   );
 }

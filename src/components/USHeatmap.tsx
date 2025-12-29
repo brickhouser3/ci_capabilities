@@ -1,17 +1,12 @@
 import React, { useState } from "react";
-import {
-  ComposableMap,
-  Geographies,
-  Geography,
-} from "react-simple-maps";
+import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { statePerformance } from "../lib/mockStatePerformance";
 
 /* ======================================================
    GEO CONFIG
 ====================================================== */
 
-const GEO_URL =
-  "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+const GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 
 const FIPS_TO_STATE: Record<string, string> = {
   "01": "AL","02": "AK","04": "AZ","05": "AR","06": "CA","08": "CO",
@@ -90,6 +85,8 @@ export default function USHeatmap({
         fontFamily: "Inter, system-ui, -apple-system, sans-serif",
         position: "relative",
         boxSizing: "border-box",
+        minWidth: 0,
+        overflowX: "clip", // ✅ prevents phantom horizontal spill
       }}
     >
       <div
@@ -98,18 +95,22 @@ export default function USHeatmap({
           height: "100%",
           gap: "1rem",
           alignItems: "flex-start",
+          minWidth: 0, // ✅ key
         }}
       >
         {/* ================= LEFT ================= */}
         <div
           style={{
-            width: 280,        // 👈 give title + cards more room
-            flexShrink: 0,     // 👈 prevents map from stealing width
-            minWidth: 280,
+            // ✅ responsive instead of forcing 280px
+            flex: "0 1 280px",
+            minWidth: 220,
+            maxWidth: 320,
+            minHeight: 0,
+            minWidth: 0,
           }}
         >
           {/* Title */}
-          <div style={{ display: "flex", gap: "0.75rem" }}>
+          <div style={{ display: "flex", gap: "0.75rem", minWidth: 0 }}>
             <div
               style={{
                 width: 36,
@@ -146,10 +147,10 @@ export default function USHeatmap({
                   fontSize: "1.05rem",
                   fontWeight: 800,
                   color: "#111827",
-                  whiteSpace: "nowrap", // 👈 no wrap
+                  whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
-		  marginBottom: "-0.15rem",
+                  marginBottom: "-0.15rem",
                 }}
               >
                 U.S. Performance Heatmap
@@ -161,8 +162,8 @@ export default function USHeatmap({
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
-		  lineHeight: 1.0, 
-		  paddingBottom: "0.5rem",
+                  lineHeight: 1.0,
+                  paddingBottom: "0.5rem",
                 }}
               >
                 Indexed vs baseline
@@ -177,6 +178,7 @@ export default function USHeatmap({
               display: "flex",
               flexDirection: "column",
               gap: "0.35rem",
+              minWidth: 0,
             }}
           >
             {[
@@ -191,18 +193,18 @@ export default function USHeatmap({
                   display: "flex",
                   alignItems: "center",
                   gap: "0.45rem",
-                  padding: "0.38rem 0.5rem 0.38rem 0.7rem", // 👈 tighter vertically
+                  padding: "0.38rem 0.5rem 0.38rem 0.7rem",
                   borderRadius: 10,
                   background: "rgba(255,255,255,0.70)",
                   border: "1px solid rgba(10,22,51,0.10)",
                   boxShadow:
                     "0 7px 14px rgba(10,22,51,0.05), inset 0 1px 0 rgba(255,255,255,0.55)",
-                  fontSize: "0.66rem", // 👈 slightly smaller
+                  fontSize: "0.66rem",
                   color: "#0A1633",
                   lineHeight: 1.15,
+                  minWidth: 0,
                 }}
               >
-                {/* Rail */}
                 <div
                   style={{
                     position: "absolute",
@@ -219,7 +221,9 @@ export default function USHeatmap({
                         : "rgba(242,214,117,0.85)",
                   }}
                 />
-                <span>{item.text}</span>
+                <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {item.text}
+                </span>
               </div>
             ))}
           </div>
@@ -229,11 +233,12 @@ export default function USHeatmap({
         <div
           style={{
             flex: 1,
+            minWidth: 0, // ✅ critical for flex children
             height: "100%",
             display: "flex",
-            justifyContent: "flex-end", // 👈 anchor right
+            justifyContent: "flex-end",
             alignItems: "flex-start",
-            paddingLeft: "0.75rem",     // 👈 pushes map right away from title lane
+            paddingLeft: "0.75rem",
             boxSizing: "border-box",
           }}
         >
@@ -241,7 +246,8 @@ export default function USHeatmap({
             style={{
               width: "100%",
               height: "100%",
-              maxWidth: 520,            // 👈 hard cap so it doesn't encroach left
+              maxWidth: 520,
+              minWidth: 0,
             }}
           >
             <ComposableMap
@@ -261,27 +267,13 @@ export default function USHeatmap({
                       <Geography
                         key={geo.rsmKey}
                         geography={geo}
-                        onMouseEnter={() =>
-                          stateCode && setHoveredState(stateCode)
-                        }
+                        onMouseEnter={() => stateCode && setHoveredState(stateCode)}
                         onMouseLeave={() => setHoveredState(null)}
-                        onClick={() =>
-                          stateCode && onSelectState?.(stateCode)
-                        }
+                        onClick={() => stateCode && onSelectState?.(stateCode)}
                         style={{
-                          default: {
-                            fill: performanceColor(value),
-                            outline: "none",
-                          },
-                          hover: {
-                            fill: "#1e40af",
-                            outline: "none",
-                            cursor: "pointer",
-                          },
-                          pressed: {
-                            fill: "#1e3a8a",
-                            outline: "none",
-                          },
+                          default: { fill: performanceColor(value), outline: "none" },
+                          hover: { fill: "#1e40af", outline: "none", cursor: "pointer" },
+                          pressed: { fill: "#1e3a8a", outline: "none" },
                         }}
                       />
                     );

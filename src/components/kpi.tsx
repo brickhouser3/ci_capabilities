@@ -59,6 +59,7 @@ export default function KPI({
     <div
       onClick={onIconClick}
       style={{
+        minWidth: 0, // ✅ allow grid/flex parents to shrink this card
         background: "#ffffff",
         borderRadius: "16px",
         padding: "1rem",
@@ -76,14 +77,19 @@ export default function KPI({
       }}
     >
       {/* HEADER */}
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", minWidth: 0 }}>
         <div
           style={{
+            minWidth: 0,
             fontSize: "0.85rem",
             fontWeight: 800,
             letterSpacing: "0.08em",
             color: labelColor ?? "#0A1633",
             textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            paddingRight: 8,
           }}
         >
           {label}
@@ -99,6 +105,7 @@ export default function KPI({
             alignItems: "center",
             justifyContent: "center",
             color: "#0A1633",
+            flex: "0 0 34px",
           }}
         >
           {resolvedIcon}
@@ -108,11 +115,16 @@ export default function KPI({
       {/* MAIN VALUE */}
       <div
         style={{
+          minWidth: 0,
           fontSize: "1.65rem",
           fontWeight: 700,
           color: "#0A1633",
           lineHeight: 1.1,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis", // ✅ prevents long values from widening
         }}
+        title={value}
       >
         {value}
       </div>
@@ -121,25 +133,33 @@ export default function KPI({
       {typeof vsTarget === "number" && (
         <div
           style={{
+            minWidth: 0,
             display: "flex",
             alignItems: "center",
             gap: "6px",
             fontSize: "0.7rem",
             fontWeight: 600,
             color: vsTarget >= 0 ? "#166534" : "#b91c1c",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
           }}
         >
           <Target size={13} />
-          vs Target: {vsTarget >= 0 ? "+" : ""}
-          {vsTarget}%
+          <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
+            vs Target: {vsTarget >= 0 ? "+" : ""}
+            {vsTarget}%
+          </span>
         </div>
       )}
 
       {/* COMPARISONS */}
       <div
         style={{
+          minWidth: 0,
           display: "flex",
           justifyContent: "space-between",
+          gap: 10,
           fontSize: "0.75rem",
         }}
       >
@@ -159,11 +179,13 @@ function Comparison({ label, value }: { label: string; value: number }) {
   return (
     <div
       style={{
+        minWidth: 0,
         display: "flex",
         gap: "4px",
         alignItems: "center",
         color: positive ? "#166534" : "#b91c1c",
         fontWeight: 600,
+        whiteSpace: "nowrap",
       }}
     >
       {positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}

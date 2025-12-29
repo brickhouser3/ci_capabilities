@@ -49,6 +49,8 @@ export function useExecVolumeKpi() {
 
         const raw = await res.json();
 
+	if (raw?.ok === false) throw new Error(raw?.error ?? "API error");
+
         /**
          * Normalize Databricks SQL API response
          * Expected shape:

@@ -31,6 +31,7 @@ const MATRIX_GRID = (brandCount: number) =>
 
 const columnCellStyle: React.CSSProperties = {
   width: "100%",
+  minWidth: 0, // ✅ critical in grids
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -52,6 +53,7 @@ const rowLabelBase: React.CSSProperties = {
   alignItems: "center",
   gap: 6,
   minHeight: 24,
+  minWidth: 0, // ✅ allow label to shrink
   lineHeight: 1.1,
 };
 
@@ -143,27 +145,17 @@ function getMetricValue(
   );
 
   const basePct = ((hash % 80) - 40) / 10; // -4.0% to +4.0%
-  const delta = ((hash % 60) - 30) / 10;   // -3.0% to +3.0%
+  const delta = ((hash % 60) - 30) / 10; // -3.0% to +3.0%
 
-  // Net Revenue now behaves like a trend %
   if (kpi === "revenue") {
-    return {
-      value: `${basePct.toFixed(1)}%`,
-      delta,
-    };
+    return { value: `${basePct.toFixed(1)}%`, delta };
   }
 
   if (kpi === "share" || kpi === "adshare") {
-    return {
-      value: `${(Math.abs(basePct) / 2).toFixed(1)}%`,
-      delta,
-    };
+    return { value: `${(Math.abs(basePct) / 2).toFixed(1)}%`, delta };
   }
 
-  return {
-    value: (Math.abs(basePct) * 10).toFixed(1),
-    delta,
-  };
+  return { value: (Math.abs(basePct) * 10).toFixed(1), delta };
 }
 
 /* ======================================================
@@ -235,7 +227,7 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
   const drill = useDrillState();
   const [hoverCol, setHoverCol] = useState<number | null>(null);
 
-  const brandsWithLogos = brands.map(b => ({
+  const brandsWithLogos = brands.map((b) => ({
     ...b,
     logo: `${baseUrl}${b.logo.replace(/^\//, "")}`,
   }));
@@ -244,82 +236,80 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
     <div
       style={{
         height: "100%",
-        overflow: "auto",
+        minWidth: 0, // ✅ allow shrink inside parent grid/card
+        overflowY: "auto",
+        overflowX: "clip", // ✅ prevent horizontal scrollbars from escaping
         fontFamily:
           "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         fontVariantNumeric: "tabular-nums",
       }}
     >
-      
-{/* ================= MATRIX TITLE ================= */}
-<div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-    padding: "0.75rem 0.75rem 1.5rem",
-  }}
->
-  {/* Icon badge */}
-  <div
-    style={{
-      width: 36,
-      height: 36,
-      borderRadius: 10,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background:
-        "linear-gradient(135deg, rgba(59,130,246,0.18), rgba(99,102,241,0.18))",
-      boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
-      flexShrink: 0,
-    }}
-  >
-    {/* pick ONE icon that represents the matrix */}
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#1f2937"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="3" width="7" height="7" />
-      <rect x="14" y="3" width="7" height="7" />
-      <rect x="14" y="14" width="7" height="7" />
-      <rect x="3" y="14" width="7" height="7" />
-    </svg>
-  </div>
+      {/* ================= MATRIX TITLE ================= */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
+          padding: "0.75rem 0.75rem 1.5rem",
+          minWidth: 0,
+        }}
+      >
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background:
+              "linear-gradient(135deg, rgba(59,130,246,0.18), rgba(99,102,241,0.18))",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+            flexShrink: 0,
+          }}
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#1f2937"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+          </svg>
+        </div>
 
-  {/* Text */}
-  <div style={{ lineHeight: 1.1 }}>
-    <div
-      style={{
-        fontSize: "1.05rem",
-        fontWeight: 700,
-        letterSpacing: "-0.01em",
-        color: "#111827",
-      }}
-    >
-      Brand Performance
-    </div>
-    <div
-      style={{
-        fontSize: "0.7rem",
-        fontWeight: 500,
-        color: "#6b7280",
-        marginTop: "0.15rem",
-      }}
-    >
-      By KPI · Click rows to drill
-    </div>
-  </div>
-</div>
+        <div style={{ lineHeight: 1.1, minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: "1.05rem",
+              fontWeight: 700,
+              letterSpacing: "-0.01em",
+              color: "#111827",
+            }}
+          >
+            Brand Performance
+          </div>
+          <div
+            style={{
+              fontSize: "0.7rem",
+              fontWeight: 500,
+              color: "#6b7280",
+              marginTop: "0.15rem",
+            }}
+          >
+            By KPI · Click rows to drill
+          </div>
+        </div>
+      </div>
 
-
-{/* ================= STICKY HEADER ================= */}
+      {/* ================= STICKY HEADER ================= */}
       <div
         style={{
           position: "sticky",
@@ -327,6 +317,7 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
           zIndex: 2,
           background: "white",
           paddingTop: HEADER_PADDING_TOP,
+          minWidth: 0,
         }}
       >
         <div
@@ -336,9 +327,10 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
             gap: COLUMN_GAP,
             padding: `0 ${ROW_PADDING_X} ${HEADER_PADDING_BOTTOM}`,
             alignItems: "center",
+            minWidth: 0, // ✅ prevent grid from forcing width
           }}
         >
-          <div />
+          <div style={{ minWidth: 0 }} />
           {brandsWithLogos.map((b, idx) => (
             <div
               key={b.key}
@@ -347,17 +339,17 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
               style={{
                 display: "flex",
                 justifyContent: "center",
+                minWidth: 0,
                 background:
-                  hoverCol === idx
-                    ? "rgba(59,130,246,0.06)"
-                    : "transparent",
+                  hoverCol === idx ? "rgba(59,130,246,0.06)" : "transparent",
               }}
             >
               <img
                 src={b.logo}
                 alt={b.name}
                 style={{
-                  height: 30, // 👈 larger logos
+                  height: 30,
+                  maxWidth: "100%", // ✅ never exceed cell
                   objectFit: "contain",
                 }}
               />
@@ -365,7 +357,6 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
           ))}
         </div>
 
-        {/* Divider */}
         <div
           style={{
             borderBottom: "1px solid rgba(0,0,0,0.06)",
@@ -375,8 +366,8 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
       </div>
 
       {/* ================= BODY ================= */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.05rem" }}>
-        {kpis.map(kpi => {
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.05rem", minWidth: 0 }}>
+        {kpis.map((kpi) => {
           const kpiPath = createRowPath({ type: "kpi", id: kpi.key });
           const kpiOpen = drill.isOpen(kpiPath);
 
@@ -391,10 +382,10 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
                   gap: COLUMN_GAP,
                   padding: `${ROW_PADDING_Y} ${ROW_PADDING_X}`,
                   cursor: "pointer",
-		  marginBottom: kpiOpen ? "0.05rem" : "0.2rem",
-		  background: kpiOpen ? "rgba(11,30,58,0.08)" : "transparent",
-    		  borderRadius: "8px",
-
+                  marginBottom: kpiOpen ? "0.05rem" : "0.2rem",
+                  background: kpiOpen ? "rgba(11,30,58,0.08)" : "transparent",
+                  borderRadius: "8px",
+                  minWidth: 0, // ✅
                 }}
               >
                 <div
@@ -408,9 +399,7 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
                     <ChevronRight
                       size={14}
                       style={{
-                        transform: kpiOpen
-                          ? "rotate(90deg)"
-                          : "rotate(0deg)",
+                        transform: kpiOpen ? "rotate(90deg)" : "rotate(0deg)",
                         transition: "transform 160ms ease",
                         opacity: 0.6,
                       }}
@@ -426,6 +415,7 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
                       key={b.key}
                       onMouseEnter={() => setHoverCol(idx)}
                       onMouseLeave={() => setHoverCol(null)}
+                      style={{ minWidth: 0 }}
                     >
                       <MetricCell
                         value={cell.value}
@@ -440,7 +430,7 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
 
               {/* LOWER LEVELS */}
               {kpiOpen &&
-                regions.map(r => {
+                regions.map((r) => {
                   const regionPath = createRowPath([
                     { type: "kpi", id: kpi.key },
                     { type: "region", id: r.id },
@@ -448,17 +438,16 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
                   const regionOpen = drill.isOpen(regionPath);
 
                   return (
-                    <div key={r.id}>
+                    <div key={r.id} style={{ minWidth: 0 }}>
                       <div
                         onClick={() => drill.toggle(regionPath)}
                         style={{
                           display: "grid",
-                          gridTemplateColumns: MATRIX_GRID(
-                            brandsWithLogos.length
-                          ),
+                          gridTemplateColumns: MATRIX_GRID(brandsWithLogos.length),
                           gap: COLUMN_GAP,
                           padding: `${ROW_PADDING_Y} ${ROW_PADDING_X}`,
                           background: "rgba(0,0,0,0.035)",
+                          minWidth: 0, // ✅
                         }}
                       >
                         <div
@@ -485,16 +474,13 @@ export default function BrandMatrix({ selectedMetric }: BrandMatrixProps) {
                         </div>
 
                         {brandsWithLogos.map((b, idx) => {
-                          const cell = getMetricValue(
-                            kpi.key,
-                            b.key,
-                            r.id
-                          );
+                          const cell = getMetricValue(kpi.key, b.key, r.id);
                           return (
                             <div
                               key={b.key}
                               onMouseEnter={() => setHoverCol(idx)}
                               onMouseLeave={() => setHoverCol(null)}
+                              style={{ minWidth: 0 }}
                             >
                               <MetricCell
                                 value={cell.value}

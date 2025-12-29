@@ -35,6 +35,7 @@ const MATRIX_GRID = (kpiCount: number) =>
 
 const columnCellStyle: React.CSSProperties = {
   width: "100%",
+  minWidth: 0, // ✅ critical for preventing grid overflow
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -179,7 +180,10 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
           "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         fontVariantNumeric: "tabular-nums",
         height: "100%",
-        overflow: "auto",
+        minWidth: 0,          // ✅ allow shrink
+        overflowY: "auto",    // ✅ vertical scroll only
+        overflowX: "clip",    // ✅ prevents phantom horizontal overflow
+        boxSizing: "border-box",
       }}
     >
       {/* ================= STICKY HEADERS ================= */}
@@ -190,6 +194,7 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
           zIndex: 2,
           background: "white",
           borderBottom: "1px solid rgba(0,0,0,0.06)",
+          minWidth: 0,
         }}
       >
         <div
@@ -199,9 +204,10 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
             gap: COLUMN_GAP,
             padding: `${ROW_PADDING_Y} ${ROW_PADDING_X}`,
             alignItems: "stretch",
+            minWidth: 0, // ✅
           }}
         >
-          <div />
+          <div style={{ minWidth: 0 }} />
           {kpis.map((kpi, idx) => {
             const Icon = kpi.icon;
             const isHovered = hoverCol === idx;
@@ -215,9 +221,8 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: isHovered
-                    ? "rgba(59,130,246,0.06)"
-                    : "transparent",
+                  minWidth: 0,
+                  background: isHovered ? "rgba(59,130,246,0.06)" : "transparent",
                   transition: "background 120ms ease",
                 }}
               >
@@ -242,11 +247,9 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
       </div>
 
       {/* ================= ROWS ================= */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.05rem" }}>
-        {regions.map(region => {
-          const regionPath = createRowPath([
-            { type: "region", id: region.key },
-          ]);
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.05rem", minWidth: 0 }}>
+        {regions.map((region) => {
+          const regionPath = createRowPath([{ type: "region", id: region.key }]);
           const regionExpanded = drill.isOpen(regionPath);
 
           return (
@@ -261,9 +264,8 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
                   padding: `${ROW_PADDING_Y} ${ROW_PADDING_X}`,
                   borderRadius: "8px",
                   cursor: "pointer",
-                  background: regionExpanded
-                    ? "rgba(11,30,58,0.08)"
-                    : "transparent",
+                  background: regionExpanded ? "rgba(11,30,58,0.08)" : "transparent",
+                  minWidth: 0, // ✅
                 }}
               >
                 <div
@@ -273,25 +275,28 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
                     display: "flex",
                     alignItems: "center",
                     gap: "6px",
+                    minWidth: 0,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   <ChevronRight
                     size={14}
                     style={{
-                      transform: regionExpanded
-                        ? "rotate(90deg)"
-                        : "rotate(0deg)",
+                      flex: "0 0 auto",
+                      transform: regionExpanded ? "rotate(90deg)" : "rotate(0deg)",
                       transition: "transform 0.15s ease",
                     }}
                   />
-                  {region.name}
+                  <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {region.name}
+                  </span>
                 </div>
 
                 {kpis.map((kpi, idx) => {
                   const cell = regionData[region.key][kpi.key];
-                  const faded =
-                    selectedMetric && selectedMetric !== kpi.key;
-
+                  const faded = selectedMetric && selectedMetric !== kpi.key;
                   const isHovered = hoverCol === idx;
 
                   return (
@@ -302,15 +307,11 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
                       style={{
                         ...columnCellStyle,
                         opacity: faded ? 0.35 : 1,
-                        background: isHovered
-                          ? "rgba(59,130,246,0.04)"
-                          : "transparent",
+                        background: isHovered ? "rgba(59,130,246,0.04)" : "transparent",
                         transition: "background 120ms ease",
                       }}
                     >
-                      <div style={{ fontWeight: 600, fontSize: ".9rem" }}>
-                        {cell.value}
-                      </div>
+                      <div style={{ fontWeight: 600, fontSize: ".9rem" }}>{cell.value}</div>
                       <div
                         style={{
                           fontSize: "0.5rem",
@@ -328,7 +329,7 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
 
               {/* STATE ROWS */}
               {regionExpanded &&
-                statesByRegion[region.key].map(state => {
+                statesByRegion[region.key].map((state) => {
                   const statePath = createRowPath([
                     { type: "region", id: region.key },
                     { type: "state", id: state.key },
@@ -337,7 +338,7 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
                   return (
                     <div
                       key={state.key}
-                      onClick={e => {
+                      onClick={(e) => {
                         e.stopPropagation();
                         drill.toggle(statePath);
                       }}
@@ -349,6 +350,7 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
                         borderRadius: "6px",
                         cursor: "pointer",
                         background: "rgba(11,30,58,0.04)",
+                        minWidth: 0, // ✅
                       }}
                     >
                       <div
@@ -359,10 +361,16 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
                           alignItems: "center",
                           gap: "6px",
                           paddingLeft: "18px",
+                          minWidth: 0,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
                         }}
                       >
-                        <ChevronRight size={12} />
-                        {state.name}
+                        <ChevronRight size={12} style={{ flex: "0 0 auto" }} />
+                        <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {state.name}
+                        </span>
                       </div>
 
                       {kpis.map((kpi, idx) => {
@@ -376,9 +384,7 @@ export default function RegionMatrix({ selectedMetric }: RegionMatrixProps) {
                             onMouseLeave={() => setHoverCol(null)}
                             style={{
                               ...columnCellStyle,
-                              background: isHovered
-                                ? "rgba(59,130,246,0.04)"
-                                : "transparent",
+                              background: isHovered ? "rgba(59,130,246,0.04)" : "transparent",
                               transition: "background 120ms ease",
                             }}
                           >
