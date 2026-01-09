@@ -1,18 +1,18 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import AppLayout from "../components/AppLayout";
+import AppLayout from "../../components/AppLayout";
 
-import USHeatmap from "../components/USHeatmap";
-import RegionMatrix from "../components/RegionMatrix";
-import BrandMatrix from "../components/BrandMatrix";
+import USHeatmap from "../../components/USHeatmap";
+import RegionMatrix from "../../components/RegionMatrix";
+import BrandMatrix from "../../components/BrandMatrix";
 
-import KPI from "../components/kpi";
-import TrendChart from "../components/TrendChart";
-import { volumeTrend } from "../lib/mockTrendData";
+import KPI from "../../components/kpi";
+import TrendChart from "../../components/TrendChart";
+import { volumeTrend } from "../../lib/mockTrendData";
 import { TrendingDown, TrendingUp, Sparkles } from "lucide-react";
 
-import { useExecVolumeKpi } from "../hooks/useExecVolumeKpi";
-import { formatBBLs } from "../lib/format";
+import { useExecVolumeKpi } from "../../hooks/useExecVolumeKpi";
+import { formatBBLs } from "../../lib/format";
 
 /* ======================================================
    CONFIG
@@ -54,7 +54,7 @@ const EXEC_UPDATES = [
    PAGE
 ====================================================== */
 
-export default function Exec() {
+export default function ExecutiveSummaryPage() {
   const history = useHistory();
   const [activeMetric, setActiveMetric] = React.useState<string | null>(null);
 
