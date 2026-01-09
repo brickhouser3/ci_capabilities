@@ -3,7 +3,7 @@ import React from "react";
 export default function LaunchHero() {
   const handleLaunch = () => {
     document
-      .getElementById("mission-control")
+      .getElementById("front-end")
       ?.scrollIntoView({ behavior: "smooth" });
   };
 

@@ -31,11 +31,11 @@ const config = {
   // 🌐 CUSTOM DOMAIN CONFIG
   // ================================
   url: "https://brickhouser3.github.io",
-  baseUrl: "/ci_capabilities/",
+  baseUrl: "/front-end/",
   trailingSlash: false,
 
   organizationName: "brickhouser3",
-  projectName: "ci_capabilities",
+  projectName: "front-end",
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
